@@ -51,7 +51,7 @@ public class Main  extends Activity{
     private Timer timer;
     private TimerTask timerTask;
     private int position;
-    // private SongAdpter1 songAdpter;
+
     private Intent playServiceIntent;
     private Bundle playServiceBundle=new Bundle();
     private List<Song> songs;
