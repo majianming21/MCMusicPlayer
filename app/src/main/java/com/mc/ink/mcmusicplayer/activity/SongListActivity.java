@@ -18,7 +18,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,7 +32,6 @@ import com.mc.ink.mcmusicplayer.adpter.SongAdpter1;
 import com.mc.ink.mcmusicplayer.adpter.SongListAdpter;
 import com.mc.ink.mcmusicplayer.domain.Song;
 import com.mc.ink.mcmusicplayer.service.MusicPlayer;
-import com.mc.ink.mcmusicplayer.util.Constant;
 import com.mc.ink.mcmusicplayer.util.TimeUtil;
 import com.mc.ink.mcmusicplayer.service.PlayServiceNotic;
 
@@ -112,7 +110,7 @@ public class SongListActivity extends Activity {
         sharedPreferences=getSharedPreferences("data",MODE_PRIVATE);
         editor=getSharedPreferences("data",MODE_PRIVATE).edit();
         position=sharedPreferences.getInt("current_song_position",-1);
-        playMode=sharedPreferences.getInt("play_mode", Constant.PLAYWITHSIGNAL);
+        playMode = sharedPreferences.getInt("play_mode", MusicPlayer.PLAYWITHSIGNAL);
         playServiceIntent=new Intent(this,PlayServiceNotic.class);
     /*    MusicPlayer musicPlayer=MusicPlayer.getMusicPlayer(this);
         musicPlayer.setOnCompletionListener(new MusicPlayer.OnCompletionListener() {
@@ -135,7 +133,7 @@ public class SongListActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (playStatus == Constant.PLAYING) {
+                if (playStatus == MusicPlayer.PLAYING) {
                     mediaPlayer.seekTo(seekBar.getProgress());
                 }
             }
@@ -185,18 +183,18 @@ public class SongListActivity extends Activity {
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (playStatus == Constant.PLAYING) {
+                if (playStatus == MusicPlayer.PLAYING) {
                     //播放中
                     //应该暂停
                     mediaPlayer.pause();
-                    playStatus =  Constant.PAUSE;
+                    playStatus = MusicPlayer.PAUSE;
                     //进度条停止
                     stopTimer();
-                } else if (playStatus ==  Constant.PAUSE) {
+                } else if (playStatus == MusicPlayer.PAUSE) {
                     //暂停情况
                     //应该继续播放
                     mediaPlayer.start();
-                    playStatus= Constant.PLAYING;
+                    playStatus = MusicPlayer.PLAYING;
                     //进度条继续
                     startTimer();
                 } else {

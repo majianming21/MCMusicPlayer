@@ -19,18 +19,21 @@ import java.util.List;
 
 public class SongListAdpter extends RecyclerView.Adapter<SongListAdpter.ViewHolder> {
     private List<Song> songList;
+    private OnClickListener onClickListener;
+
 
     @Override
     public ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
         View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.song_item,parent,false);
-        ViewHolder viewHolder=new ViewHolder(view);
-       /* viewHolder.songItemView.setOnClickListener(new View.OnClickListener() {
+        final ViewHolder viewHolder = new ViewHolder(view);
+        viewHolder.songItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(parent.getContext(),""+viewHolder.getAdapterPosition(),Toast.LENGTH_SHORT).show();
-
+                if (SongListAdpter.this.onClickListener != null) {
+                    SongListAdpter.this.onClickListener.onClick(v, viewHolder.getAdapterPosition());
+                }
             }
-        });*/
+        });
         return viewHolder;
     }
 
@@ -70,4 +73,14 @@ public class SongListAdpter extends RecyclerView.Adapter<SongListAdpter.ViewHold
             data= (TextView) view.findViewById(R.id.song_data);
         }
     }
+
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+    }
+
+
+    public interface OnClickListener {
+        void onClick(View v, int position);
+    }
+
 }

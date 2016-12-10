@@ -2,11 +2,13 @@ package com.mc.ink.mcmusicplayer.service;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.view.View;
 import android.widget.Toast;
 
 import com.mc.ink.mcmusicplayer.domain.Song;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -34,20 +36,21 @@ public class MusicPlayer {
     private char playStatus;
     private int position;
     private Context context;
-    private OnCompletionListener onCompletionListener;
-    private OnSeekCompleteListener onSeekCompleteListener;
-    private OnPauseListener onPauseListener;
-    private OnPlayListener onPlayListener;
+    private List<OnCompletionListener> onCompletionListenerList;
+    private List<OnSeekCompleteListener> onSeekCompleteListenerList;
+    private List<OnPauseListener> onPauseListenerList;
+    private List<OnPlayListener> onPlayListenerList;
+    private List<OnPlayModeChangeListener> onPlayModeChangeListenerList;
     private boolean playByUserChoice;
 
     private MusicPlayer(Context context) {
         mediaPlayer = new MediaPlayer();
         playMode = PLAYWITHSIGNAL;
         playStatus = STOP;
-        position=-1;
-        this.context=context;
+        position = -1;
+        this.context = context;
         setListener();
-        playByUserChoice=true;
+        playByUserChoice = true;
     }
 
     public static MusicPlayer getMusicPlayer(Context context) {
@@ -55,52 +58,61 @@ public class MusicPlayer {
             musicPlayer = new MusicPlayer(context);
         return musicPlayer;
     }
+
     /**
      * 设置歌曲列表
+     *
      * @param songList
      */
-    public void setPlayList(List<Song> songList){
-        this.songList=songList;
-        Toast.makeText(context,this.songList.size()+"",Toast.LENGTH_SHORT).show();
+    public void setPlayList(List<Song> songList) {
+        this.songList = songList;
+        Toast.makeText(context, this.songList.size() + "", Toast.LENGTH_SHORT).show();
     }
 
     /**
-     *  设置播放模式
-     *  单曲播放 Constant.PLAYWITHSIGNAL
-     *  单曲循环 Constant.PLAYWITHSIGNALLOOPING
-     *  随机播放 Constant.PLAYWITHRADOM
-     *  列表播放 Cosntant.PLAYWITHSONGLIST
-     *  列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     * 设置播放模式
+     * 单曲播放 Constant.PLAYWITHSIGNAL
+     * 单曲循环 Constant.PLAYWITHSIGNALLOOPING
+     * 随机播放 Constant.PLAYWITHRADOM
+     * 列表播放 Cosntant.PLAYWITHSONGLIST
+     * 列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     *
      * @param playMode
      */
-    public void setPlayMode(int playMode){
-        this.playMode=playMode;
+    public void setPlayMode(int playMode) {
+        this.playMode = playMode;
+        if (this.onPlayModeChangeListenerList != null) {
+            for (OnPlayModeChangeListener onPlayModeChangeListener : onPlayModeChangeListenerList) {
+                onPlayModeChangeListener.onChange();
+            }
+        }
     }
+
     /**
      * 获取播放模式
-     *  单曲播放 Constant.PLAYWITHSIGNAL
-     *  单曲循环 Constant.PLAYWITHSIGNALLOOPING
-     *  随机播放 Constant.PLAYWITHRADOM
-     *  列表播放 Cosntant.PLAYWITHSONGLIST
-     *  列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     * 单曲播放 Constant.PLAYWITHSIGNAL
+     * 单曲循环 Constant.PLAYWITHSIGNALLOOPING
+     * 随机播放 Constant.PLAYWITHRADOM
+     * 列表播放 Cosntant.PLAYWITHSONGLIST
+     * 列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
      */
-    public int getPlayMode(){
+    public int getPlayMode() {
         return playMode;
     }
 
-    public void setPosition(int position){
-        this.position=position;
-        playByUserChoice=true;
+    public void setPosition(int position) {
+        this.position = position;
+        playByUserChoice = true;
     }
 
     /**
      * 播放
      */
-    public void play(){
-        if(playByUserChoice){
+    public void play() {
+        if (playByUserChoice) {
             //点击列表后播放某首歌曲
             play(position);
-        }else{
+        } else {
             //暂停或者停止点击的播放
             //TODO
             play(position);
@@ -108,27 +120,29 @@ public class MusicPlayer {
 
 
     }
+
     /**
      * 暂停
      * 当触发时，如果原来状态为play，则暂停播放,并返回true 否则什么都不做，并返回false
      */
-    public boolean pause(){
-        if(mediaPlayer.isPlaying()){
+    public boolean pause() {
+        if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             playStatus = PAUSE;
             onPause();
             return true;
-        }else{
+        } else {
             return false;
         }
     }
+
     /**
      * 播放下一首
      */
-    public void playNext(){
-        int next_position=this.getNextPosition();
-        String next_path=getSongPath(next_position);
-        if(next_path!=null){
+    public void playNext() {
+        int next_position = this.getNextPosition();
+        String next_path = getSongPath(next_position);
+        if (next_path != null) {
             try {
                 play(next_path);
             } catch (IOException e) {
@@ -136,16 +150,17 @@ public class MusicPlayer {
             }
         }
     }
+
     /**
      * 播放
      */
-    public void play(int position){
-        if(position==-1){
+    private void play(int position) {
+        if (position == -1) {
             playNext();
-        }else{
-            String path=getSongPath(position);
-            Toast.makeText(context,path+"",Toast.LENGTH_SHORT).show();
-            if(path!=null){
+        } else {
+            String path = getSongPath(position);
+            Toast.makeText(context, path + "", Toast.LENGTH_SHORT).show();
+            if (path != null) {
                 try {
                     play(path);
                 } catch (IOException e) {
@@ -160,79 +175,88 @@ public class MusicPlayer {
     /**
      * 播放上一首
      */
-    public void playPre(){
+    public void playPre() {
 
     }
+
     /**
      * 返回播放状态
      */
-    public int playStatus(){
+    public int playStatus() {
         return playStatus;
     }
 
     /**
      * 通过歌曲列表中偏移值获得歌曲路径
+     *
      * @param position
      * @return
      */
-    private String getSongPath(int position){
-        if(songList==null||songList.isEmpty()||songList.size()<=position){
+    private String getSongPath(int position) {
+        if (songList == null || songList.isEmpty() || songList.size() <= position) {
             return null;
-        }else{
+        } else {
             return songList.get(position).getData();
         }
     }
+
     /**
      * 获得即将播放的歌曲的下标
-     *  单曲播放 Constant.PLAYWITHSIGNAL
-     *  单曲循环 Constant.PLAYWITHSIGNALLOOPING
-     *  随机播放 Constant.PLAYWITHRADOM
-     *  列表播放 Cosntant.PLAYWITHSONGLIST
-     *  列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     * 单曲播放 Constant.PLAYWITHSIGNAL
+     * 单曲循环 Constant.PLAYWITHSIGNALLOOPING
+     * 随机播放 Constant.PLAYWITHRADOM
+     * 列表播放 Cosntant.PLAYWITHSONGLIST
+     * 列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     *
      * @return
      */
-    private int getNextPosition(){
-        int next_position=-1;//当没有下一首时下标为-1
-        switch (playMode){
+    private int getNextPosition() {
+        int next_position = -1;//当没有下一首时下标为-1
+        switch (playMode) {
             case PLAYWITHSIGNAL: {
                 //单曲播放
-                if(position==-1){
-                    next_position=0;
+                if (position == -1) {
+                    next_position = 0;
                 }
-            }break;
+            }
+            break;
             case PLAYWITHSIGNALLOOPING: {
                 //单曲循环
-                if(position!=-1) {
-                    next_position=position;
-                }else{
-                    next_position=0;
+                if (position != -1) {
+                    next_position = position;
+                } else {
+                    next_position = 0;
                 }
-            }break;
+            }
+            break;
             case PLAYWITHRADOM: {
                 //随机播放
-                Random random=new Random();
-                next_position=random.nextInt(songList.size());
-            }break;
+                Random random = new Random();
+                next_position = random.nextInt(songList.size());
+            }
+            break;
             case PLAYWITHSONGLIST: {
                 //列表播放
-                if(position!=-1) {//还没开始播放
-                    next_position=0;
-                }else if(position<songList.size()-1){//当前播放的歌曲不是列表的最后一首
-                    next_position=position+1;
-                }else{//当前播放的歌曲是列表的最后一首，这下一首应该停止
-                    next_position=-1;
+                if (position != -1) {//还没开始播放
+                    next_position = 0;
+                } else if (position < songList.size() - 1) {//当前播放的歌曲不是列表的最后一首
+                    next_position = position + 1;
+                } else {//当前播放的歌曲是列表的最后一首，这下一首应该停止
+                    next_position = -1;
                 }
-            }break;
+            }
+            break;
             case PLAYWITHSONGLISTLOOPING: {
                 //列表循环
-                if(position!=-1) {//还没开始播放
-                    next_position=0;
-                }else if(position<songList.size()-1){//当前播放的歌曲不是列表的最后一首
-                    next_position=position+1;
-                }else{//当前播放的歌曲是列表的最后一首，这下一首应该从头开始
-                    next_position=0;
+                if (position != -1) {//还没开始播放
+                    next_position = 0;
+                } else if (position < songList.size() - 1) {//当前播放的歌曲不是列表的最后一首
+                    next_position = position + 1;
+                } else {//当前播放的歌曲是列表的最后一首，这下一首应该从头开始
+                    next_position = 0;
                 }
-            }break;
+            }
+            break;
 
 
         }
@@ -241,6 +265,7 @@ public class MusicPlayer {
 
     /**
      * 播放
+     *
      * @param path
      * @throws IOException
      */
@@ -262,13 +287,18 @@ public class MusicPlayer {
     }
 
     private void onPlay() {
-        if(onPlayListener!=null){
-            onPlayListener.onPlay();
+        if (this.onPlayListenerList != null) {
+            for (OnPlayListener onPlayListener : onPlayListenerList) {
+                onPlayListener.onPlay();
+            }
         }
     }
+
     private void onPause() {
-        if(onPauseListener!=null){
-            onPauseListener.onPause();
+        if (this.onPauseListenerList != null) {
+            for (OnPauseListener onPauseListener : onPauseListenerList) {
+                onPauseListener.onPause();
+            }
         }
     }
 
@@ -276,13 +306,14 @@ public class MusicPlayer {
      * 获取播放进度
      * 获取播放进度
      */
-    public int getCurrentPosition(){
+    public int getCurrentPosition() {
         return mediaPlayer.getCurrentPosition();
     }
+
     /**
      * 获取播放歌曲最大值
      */
-    public int getDuration(){
+    public int getDuration() {
         return mediaPlayer.getDuration();
     }
 
@@ -336,72 +367,120 @@ public class MusicPlayer {
     /**
      *
      */
-    public void setListener(){
+    public void setListener() {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                if(onCompletionListener!=null)
-                    onCompletionListener.onCompletion();
+                if (onCompletionListenerList != null) {
+                    for (OnCompletionListener onCompletionListener : onCompletionListenerList) {
+                        onCompletionListener.onCompletion();
+                    }
+                }
                 playNext();
             }
         });
         mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
             @Override
             public void onSeekComplete(MediaPlayer mp) {
-                if(onSeekCompleteListener!=null){
-                    onSeekCompleteListener.onSeekComplete();
+                if (onSeekCompleteListenerList != null) {
+                    for (OnSeekCompleteListener onSeekCompleteListener : onSeekCompleteListenerList)
+                        onSeekCompleteListener.onSeekComplete();
                 }
             }
         });
     }
 
     /**
-     *
      * @param onCompletionListener
      */
-    public void setOnCompletionListener(OnCompletionListener onCompletionListener){
-        this.onCompletionListener=onCompletionListener;
+    public void addOnCompletionListener(OnCompletionListener onCompletionListener) {
+        if (onCompletionListener == null) {
+            return;
+        }
+        if (onCompletionListenerList != null) {
+            onCompletionListenerList = new ArrayList<>();
+        }
+        this.onCompletionListenerList.add(onCompletionListener);
     }
-    public interface OnCompletionListener{
+
+    public interface OnCompletionListener {
         void onCompletion();
     }
 
     /**
-     *
      * @param onSeekCompleteListener
      */
 
-    public void setOnSeekCompleteListener(OnSeekCompleteListener onSeekCompleteListener){
-        this.onSeekCompleteListener=onSeekCompleteListener;
+    public void addOnSeekCompleteListener(OnSeekCompleteListener onSeekCompleteListener) {
+        if (onSeekCompleteListener == null) {
+            return;
+        }
+        if (onSeekCompleteListenerList == null) {
+            onSeekCompleteListenerList = new ArrayList<>();
+        }
+        this.onSeekCompleteListenerList.add(onSeekCompleteListener);
     }
-    public interface OnSeekCompleteListener{
+
+    public interface OnSeekCompleteListener {
         void onSeekComplete();
     }
 
     /**
-     *
      * @param onPauseListener
      */
-    public void setOnPauseListener(OnPauseListener onPauseListener){
-        this.onPauseListener=onPauseListener;
+    public void addOnPauseListener(OnPauseListener onPauseListener) {
+        if (onPauseListener == null) {
+            return;
+        }
+        if (onPauseListenerList == null) {
+            onPauseListenerList = new ArrayList<>();
+        }
+        this.onPauseListenerList.add(onPauseListener);
     }
-    public interface OnPauseListener{
+
+    public interface OnPauseListener {
         void onPause();
     }
 
     /**
-     *
      * @param onPlayListener
      */
-    public void setOnPlayListener(OnPlayListener onPlayListener){
-        this.onPlayListener=onPlayListener;
+    public void addOnPlayListener(OnPlayListener onPlayListener) {
+        if (onPlayListener == null) {
+            return;
+        }
+        if (onPlayListenerList == null) {
+            onPlayListenerList = new ArrayList<>();
+        }
+        this.onPlayListenerList.add(onPlayListener);
     }
 
     /**
      *
      */
-    public interface OnPlayListener{
+    public interface OnPlayListener {
         void onPlay();
+    }
+
+
+    /**
+     * @param onPlayModeChangeListener
+     */
+    public void addOnPlayModeChangeListener(OnPlayModeChangeListener onPlayModeChangeListener) {
+        if (onPlayModeChangeListener == null) {
+            return;
+        }
+        if (onPlayModeChangeListenerList == null) {
+            onPlayModeChangeListenerList = new ArrayList<>();
+        }
+        this.onPlayModeChangeListenerList.add(onPlayModeChangeListener);
+    }
+
+    /**
+     *
+     */
+    public interface OnPlayModeChangeListener {
+        void onChange();
     }
 
 }

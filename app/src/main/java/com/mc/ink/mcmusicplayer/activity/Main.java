@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -25,6 +24,7 @@ import com.mc.ink.mcmusicplayer.service.MusicPlayer;
 import com.mc.ink.mcmusicplayer.util.LogUtil;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,7 +44,7 @@ public class Main  extends Activity{
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPreferences;
     private TextView max, current,currentSongName;
-    private RecyclerView songList;
+    private RecyclerView songListView;
 
     private Button pause;
     private EditText searchText;
@@ -68,25 +68,62 @@ public class Main  extends Activity{
         setContentView(R.layout.activity_main);
         initUi();
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
-        songList.setLayoutManager(linearLayoutManager);
-        songList.setItemAnimator(new DefaultItemAnimator());
+        songListView.setLayoutManager(linearLayoutManager);
+//        songListView.setItemAnimator(new DefaultItemAnimator());
         songLoader=new SongLoader();
         songs=songLoader.getSongList(this);
         songListAdpter=new SongListAdpter(songs);
-        songList.setAdapter(songListAdpter);
+        songListView.setAdapter(songListAdpter);
         Toast.makeText(this,"一共加载了"+songListAdpter.getItemCount()+"首歌曲",Toast.LENGTH_SHORT).show();
         LogUtil.d(Tag,"一共加载了"+songListAdpter.getItemCount()+"首歌曲");
         LogUtil.d(Tag,"一共加载了"+songs.size()+"首歌曲");
         musicPlayer=MusicPlayer.getMusicPlayer(this);
         musicPlayer.setPlayList(songs);
-      //  musicPlayer.setPosition(2);
+
+        musicPlayer.setPosition(new Random().nextInt(songs.size()));
         musicPlayer.play();
-        /*songList.setOnClickListener(new View.OnClickListener() {
+        musicPlayer.setPlayMode(MusicPlayer.PLAYWITHRADOM);
+        songListAdpter.setOnClickListener(new SongListAdpter.OnClickListener() {
+            @Override
+            public void onClick(View v, int position) {
+                musicPlayer.setPosition(position);
+                musicPlayer.play();
+                Toast.makeText(Main.this, v.toString() + " " + position, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                musicPlayer.pause();
             }
-        });*/
+        });
+        musicPlayer.addOnPauseListener(new MusicPlayer.OnPauseListener() {
+            @Override
+            public void onPause() {
+                Toast.makeText(Main.this, "暂停", Toast.LENGTH_SHORT).show();
+            }
+        });
+        musicPlayer.addOnPauseListener(new MusicPlayer.OnPauseListener() {
+            @Override
+            public void onPause() {
+                Toast.makeText(Main.this, "暂停1", Toast.LENGTH_SHORT).show();
+            }
+        });
+        musicPlayer.addOnPlayListener(new MusicPlayer.OnPlayListener() {
+            @Override
+            public void onPlay() {
+                Toast.makeText(Main.this, "播放", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        musicPlayer.addOnPlayListener(new MusicPlayer.OnPlayListener() {
+            @Override
+            public void onPlay() {
+                Toast.makeText(Main.this, "播放1", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
     }
 
@@ -97,7 +134,7 @@ public class Main  extends Activity{
         max = (TextView) findViewById(R.id.max);
         current = (TextView) findViewById(R.id.curr);
         pause = (Button) findViewById(R.id.pause);
-        songList = (RecyclerView) findViewById(R.id.db);
+        songListView = (RecyclerView) findViewById(R.id.db);
         spinner= (Spinner) findViewById(R.id.spinner);
         currentSongName= (TextView) findViewById(R.id.current_song_name);
        // search= (Button) findViewById(R.id.btn_search);
