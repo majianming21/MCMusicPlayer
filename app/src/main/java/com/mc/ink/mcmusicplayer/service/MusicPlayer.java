@@ -5,7 +5,6 @@ import android.media.MediaPlayer;
 import android.widget.Toast;
 
 import com.mc.ink.mcmusicplayer.domain.Song;
-import com.mc.ink.mcmusicplayer.util.Constant;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +16,17 @@ import java.util.Random;
  */
 
 public class MusicPlayer {
+    public static final int PLAYWITHSIGNAL = 0;
+    public static final int PLAYWITHSIGNALLOOPING = 1;
+    public static final int PLAYWITHRADOM = 2;
+    public static final int PLAYWITHSONGLIST = 3;
+    public static final int PLAYWITHSONGLISTLOOPING = 4;
+
+    public static final int PLAYING = 10;
+    public static final int PAUSE = 11;
+    public static final int STOP = 12;
+
+
     private static MusicPlayer musicPlayer;
     private MediaPlayer mediaPlayer;
     private List<Song> songList;
@@ -32,8 +42,8 @@ public class MusicPlayer {
 
     private MusicPlayer(Context context) {
         mediaPlayer = new MediaPlayer();
-        playMode=Constant.PLAYWITHSIGNAL;
-        playStatus = Constant.STOP;
+        playMode = PLAYWITHSIGNAL;
+        playStatus = STOP;
         position=-1;
         this.context=context;
         setListener();
@@ -105,7 +115,7 @@ public class MusicPlayer {
     public boolean pause(){
         if(mediaPlayer.isPlaying()){
             mediaPlayer.pause();
-            playStatus=Constant.PAUSE;
+            playStatus = PAUSE;
             onPause();
             return true;
         }else{
@@ -184,13 +194,13 @@ public class MusicPlayer {
     private int getNextPosition(){
         int next_position=-1;//当没有下一首时下标为-1
         switch (playMode){
-            case Constant.PLAYWITHSIGNAL:{
+            case PLAYWITHSIGNAL: {
                 //单曲播放
                 if(position==-1){
                     next_position=0;
                 }
             }break;
-            case Constant.PLAYWITHSIGNALLOOPING:{
+            case PLAYWITHSIGNALLOOPING: {
                 //单曲循环
                 if(position!=-1) {
                     next_position=position;
@@ -198,12 +208,12 @@ public class MusicPlayer {
                     next_position=0;
                 }
             }break;
-            case Constant.PLAYWITHRADOM:{
+            case PLAYWITHRADOM: {
                 //随机播放
                 Random random=new Random();
                 next_position=random.nextInt(songList.size());
             }break;
-            case Constant.PLAYWITHSONGLIST:{
+            case PLAYWITHSONGLIST: {
                 //列表播放
                 if(position!=-1) {//还没开始播放
                     next_position=0;
@@ -213,7 +223,7 @@ public class MusicPlayer {
                     next_position=-1;
                 }
             }break;
-            case Constant.PLAYWITHSONGLISTLOOPING:{
+            case PLAYWITHSONGLISTLOOPING: {
                 //列表循环
                 if(position!=-1) {//还没开始播放
                     next_position=0;
@@ -235,11 +245,11 @@ public class MusicPlayer {
      * @throws IOException
      */
     private void play(String path) throws IOException {
-        if (playStatus == Constant.PLAYING || playStatus == Constant.PAUSE) {
+        if (playStatus == PLAYING || playStatus == PAUSE) {
             //播放/暂停
             mediaPlayer.stop();
             mediaPlayer.reset();
-            playStatus = Constant.STOP;
+            playStatus = STOP;
         } else {
             //停止情况
             mediaPlayer.reset();
@@ -248,7 +258,7 @@ public class MusicPlayer {
         mediaPlayer.prepare();
         mediaPlayer.start();
         onPlay();
-        playStatus = Constant.PLAYING;
+        playStatus = PLAYING;
     }
 
     private void onPlay() {
@@ -332,6 +342,7 @@ public class MusicPlayer {
             public void onCompletion(MediaPlayer mediaPlayer) {
                 if(onCompletionListener!=null)
                     onCompletionListener.onCompletion();
+                playNext();
             }
         });
         mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
