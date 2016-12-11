@@ -78,8 +78,8 @@ public class MusicPlayer {
      * 单曲播放 Constant.PLAY_WITH_SIGNAL
      * 单曲循环 Constant.PLAY_WITH_SIGNAL_LOOPING
      * 随机播放 Constant.PLAY_WITH_RANDOM
-     * 列表播放 Cosntant.PLAY_WITH_SONG_LIST
-     * 列表循环 Cosntant.PLAY_WITH_SONG_LIST_LOOPING
+     * 列表播放 Constant.PLAY_WITH_SONG_LIST
+     * 列表循环 Constant.PLAY_WITH_SONG_LIST_LOOPING
      *
      * @param playMode
      */
@@ -110,50 +110,44 @@ public class MusicPlayer {
         return playMode;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
-        playByUserChoice = true;
-    }
-
-    /**
-     * 播放
-     */
-    public void play() {
-        if (playByUserChoice) {
-            //用户点击列表后播放某首歌曲
-            LogUtil.i(TAG, "on play() 用户点击列表，播放第" + position + "首歌曲");
-            play(position);
-        } else {
-            //暂停或者停止点击的播放
-            LogUtil.i(TAG, "on play() 用户播放，播放第" + position + "首歌曲");
-            play(position);
+    public void changePlayStatus() {
+        if (playStatus == PLAYING) {
+            onPause();
+            pause();
+        } else if (playStatus == PAUSE) {
+            onPlay(true);
+            play();
         }
-
-
+    }
+    /**
+     * 点击播放按钮
+     */
+    private void play() {
+        if (position == -1) {
+            playNext(true);
+        } else if (playStatus == MusicPlayer.PAUSE) {
+            mediaPlayer.start();
+        }
+        playStatus = PLAYING;
     }
 
     /**
      * 暂停
      * 当触发时，如果原来状态为play，则暂停播放,并返回true 否则什么都不做，并返回false
      */
-    public boolean pause() {
+    private void pause() {
         if (mediaPlayer.isPlaying()) {
             LogUtil.i(TAG, "pause() 用户点击暂停，播放器停止播放");
             mediaPlayer.pause();
             playStatus = PAUSE;
-            onPause();
-            return true;
-        } else {
-            LogUtil.i(TAG, "pause() 用户点击暂停，原本播放器不在播放状态");
-            return false;
         }
     }
 
     /**
      * 播放下一首
      */
-    public void playNext() {
-        int next_position = this.getNextPosition();
+    public void playNext(boolean fromUser) {
+        int next_position = this.getNextPosition(fromUser);
         String next_path = getSongPath(next_position);
         LogUtil.i(TAG, "playNext() 播放下一首，当前歌曲为第" + position + "首");
         LogUtil.i(TAG, "playNext() 当前播放模式为" + playMode);
@@ -166,7 +160,8 @@ public class MusicPlayer {
 
         if (next_path != null) {
             try {
-                play(next_path);
+                this.position = next_position;
+                play(next_path, fromUser);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -175,22 +170,20 @@ public class MusicPlayer {
 
     /**
      * 播放
+     * 用户点击歌曲列表得到
+     * @param position 播放歌曲列表中偏移值为position的歌曲
+     *                 如果偏移值为-1，则播放第-1的下一首，即第0首歌曲
      */
-    private void play(int position) {
-        if (position == -1) {
-            playNext();
-        } else {
+    public void play(int position) {
             String path = getSongPath(position);
-            Toast.makeText(context, path + "", Toast.LENGTH_SHORT).show();
             if (path != null) {
                 try {
-                    play(path);
+                    play(path, false);
+                    this.position = position;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }
-
     }
 
 
@@ -198,11 +191,13 @@ public class MusicPlayer {
      * 播放上一首
      */
     public void playPre() {
-
+        /* TODO */
     }
 
     /**
-     * 返回播放状态
+     * 获得播放状态
+     * @return 播放状态
+     *
      */
     public int playStatus() {
         return playStatus;
@@ -211,8 +206,8 @@ public class MusicPlayer {
     /**
      * 通过歌曲列表中偏移值获得歌曲路径
      *
-     * @param position
-     * @return
+     * @param position 歌曲在列表中的偏移值
+     * @return 为歌曲路径
      */
     private String getSongPath(int position) {
         if (songList == null || songList.isEmpty() || songList.size() <= position) {
@@ -222,21 +217,18 @@ public class MusicPlayer {
         }
     }
 
+
     /**
      * 获得即将播放的歌曲的下标
-     * 单曲播放 Constant.PLAY_WITH_SIGNAL
-     * 单曲循环 Constant.PLAY_WITH_SIGNAL_LOOPING
-     * 随机播放 Constant.PLAY_WITH_RANDOM
-     * 列表播放 Constant.PLAY_WITH_SONG_LIST
-     * 列表循环 Constant.PLAY_WITH_SONG_LIST_LOOPING
-     *
+     * 提供给自动播放队列
      * @return
      */
-    private int getNextPosition() {
+    private int getNextPosition(boolean fromUser) {
         int next_position = -1;//当没有下一首时下标为-1
         switch (playMode) {
             case PLAY_WITH_SIGNAL: {
                 //单曲播放
+                /* TODO */
                 if (position == -1) {
                     next_position = 0;
                 }
@@ -291,7 +283,7 @@ public class MusicPlayer {
      * @param path 歌曲文件的绝对路径
      * @throws IOException 当文件路径或者播放器状态异常时抛出
      */
-    private void play(String path) throws IOException {
+    private void play(String path, boolean fromUser) throws IOException {
         if (playStatus == PLAYING || playStatus == PAUSE) {
             //播放/暂停
             mediaPlayer.stop();
@@ -304,18 +296,26 @@ public class MusicPlayer {
         mediaPlayer.setDataSource(path);
         mediaPlayer.prepare();
         mediaPlayer.start();
-        onPlay();
+        onPlay(fromUser);
         playStatus = PLAYING;
     }
 
-    private void onPlay() {
+    /**
+     * 播放时触发
+     * 遍历所有监听播放状态的监听器
+     */
+    private void onPlay(boolean fromUser) {
         if (this.onPlayListenerList != null) {
             for (OnPlayListener onPlayListener : onPlayListenerList) {
-                onPlayListener.onPlay();
+                onPlayListener.onPlay(position, fromUser);
             }
         }
     }
 
+    /**
+     * 暂停时触发
+     * 遍历所有监听暂停状态的监听器
+     */
     private void onPause() {
         if (this.onPauseListenerList != null) {
             for (OnPauseListener onPauseListener : onPauseListenerList) {
@@ -399,7 +399,7 @@ public class MusicPlayer {
                         onCompletionListener.onCompletion();
                     }
                 }
-                playNext();
+                playNext(false);
             }
         });
         mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
@@ -482,7 +482,7 @@ public class MusicPlayer {
      *
      */
     public interface OnPlayListener {
-        void onPlay();
+        void onPlay(int posotion, boolean fromUser);
     }
 
 

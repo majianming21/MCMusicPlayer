@@ -79,14 +79,12 @@ public class Main  extends Activity{
         musicPlayer.setPlayList(songs);
 
         /*musicPlayer.setPosition(new Random().nextInt(songs.size()));*/
-        musicPlayer.setPosition(2);
-        musicPlayer.play();
+        musicPlayer.play(2);
         musicPlayer.setPlayMode(MusicPlayer.PLAY_WITH_RANDOM);
         songListAdpter.setOnClickListener(new SongListAdpter.OnClickListener() {
             @Override
             public void onClick(View v, int position) {
-                musicPlayer.setPosition(position);
-                musicPlayer.play();
+                musicPlayer.play(position);
                 Toast.makeText(Main.this, v.toString() + " " + position, Toast.LENGTH_SHORT).show();
             }
         });
@@ -94,7 +92,7 @@ public class Main  extends Activity{
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                musicPlayer.pause();
+                musicPlayer.changePlayStatus();
             }
         });
         musicPlayer.addOnPauseListener(new MusicPlayer.OnPauseListener() {
@@ -103,23 +101,13 @@ public class Main  extends Activity{
                 Toast.makeText(Main.this, "暂停", Toast.LENGTH_SHORT).show();
             }
         });
-        musicPlayer.addOnPauseListener(new MusicPlayer.OnPauseListener() {
-            @Override
-            public void onPause() {
-                Toast.makeText(Main.this, "暂停1", Toast.LENGTH_SHORT).show();
-            }
-        });
         musicPlayer.addOnPlayListener(new MusicPlayer.OnPlayListener() {
             @Override
-            public void onPlay() {
-                Toast.makeText(Main.this, "播放", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        musicPlayer.addOnPlayListener(new MusicPlayer.OnPlayListener() {
-            @Override
-            public void onPlay() {
-                Toast.makeText(Main.this, "播放1", Toast.LENGTH_SHORT).show();
+            public void onPlay(int posotion, boolean fromUser) {
+                if (fromUser)
+                    Toast.makeText(Main.this, "播放", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(Main.this, songs.get(posotion).getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
 
