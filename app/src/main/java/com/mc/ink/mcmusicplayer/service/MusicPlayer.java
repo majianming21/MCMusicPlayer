@@ -2,10 +2,12 @@ package com.mc.ink.mcmusicplayer.service;
 
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.view.View;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.mc.ink.mcmusicplayer.R;
 import com.mc.ink.mcmusicplayer.domain.Song;
+import com.mc.ink.mcmusicplayer.util.LogUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,16 +20,16 @@ import java.util.Random;
  */
 
 public class MusicPlayer {
-    public static final int PLAYWITHSIGNAL = 0;
-    public static final int PLAYWITHSIGNALLOOPING = 1;
-    public static final int PLAYWITHRADOM = 2;
-    public static final int PLAYWITHSONGLIST = 3;
-    public static final int PLAYWITHSONGLISTLOOPING = 4;
+    public static final int PLAY_WITH_SIGNAL = 1;
+    public static final int PLAY_WITH_SIGNAL_LOOPING = 2;
+    public static final int PLAY_WITH_RANDOM = 3;
+    public static final int PLAY_WITH_SONG_LIST = 4;
+    public static final int PLAY_WITH_SONG_LIST_LOOPING = 5;
 
     public static final int PLAYING = 10;
     public static final int PAUSE = 11;
     public static final int STOP = 12;
-
+    private String TAG;
 
     private static MusicPlayer musicPlayer;
     private MediaPlayer mediaPlayer;
@@ -45,12 +47,14 @@ public class MusicPlayer {
 
     private MusicPlayer(Context context) {
         mediaPlayer = new MediaPlayer();
-        playMode = PLAYWITHSIGNAL;
+        playMode = PLAY_WITH_SIGNAL;
         playStatus = STOP;
         position = -1;
         this.context = context;
         setListener();
         playByUserChoice = true;
+        TAG = context.getString(R.string.app_name) + " --- MusicPlayer -- ";
+
     }
 
     public static MusicPlayer getMusicPlayer(Context context) {
@@ -65,21 +69,27 @@ public class MusicPlayer {
      * @param songList
      */
     public void setPlayList(List<Song> songList) {
+        Log.i(TAG, "setPlayList(List<Song> songList) 一共加载了" + songList.size() + "首歌曲");
         this.songList = songList;
-        Toast.makeText(context, this.songList.size() + "", Toast.LENGTH_SHORT).show();
     }
 
     /**
      * 设置播放模式
-     * 单曲播放 Constant.PLAYWITHSIGNAL
-     * 单曲循环 Constant.PLAYWITHSIGNALLOOPING
-     * 随机播放 Constant.PLAYWITHRADOM
-     * 列表播放 Cosntant.PLAYWITHSONGLIST
-     * 列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     * 单曲播放 Constant.PLAY_WITH_SIGNAL
+     * 单曲循环 Constant.PLAY_WITH_SIGNAL_LOOPING
+     * 随机播放 Constant.PLAY_WITH_RANDOM
+     * 列表播放 Cosntant.PLAY_WITH_SONG_LIST
+     * 列表循环 Cosntant.PLAY_WITH_SONG_LIST_LOOPING
      *
      * @param playMode
      */
     public void setPlayMode(int playMode) {
+        LogUtil.i(TAG, "setPlayMode(int playMode) 设置播放模式为" + playMode);
+        LogUtil.i(TAG, "                          1.单曲播放");
+        LogUtil.i(TAG, "                          2.单曲循环");
+        LogUtil.i(TAG, "                          3.随机播放");
+        LogUtil.i(TAG, "                          4.列表播放");
+        LogUtil.i(TAG, "                          5.列表循环");
         this.playMode = playMode;
         if (this.onPlayModeChangeListenerList != null) {
             for (OnPlayModeChangeListener onPlayModeChangeListener : onPlayModeChangeListenerList) {
@@ -90,11 +100,11 @@ public class MusicPlayer {
 
     /**
      * 获取播放模式
-     * 单曲播放 Constant.PLAYWITHSIGNAL
-     * 单曲循环 Constant.PLAYWITHSIGNALLOOPING
-     * 随机播放 Constant.PLAYWITHRADOM
-     * 列表播放 Cosntant.PLAYWITHSONGLIST
-     * 列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     * 单曲播放 Constant.PLAY_WITH_SIGNAL
+     * 单曲循环 Constant.PLAY_WITH_SIGNAL_LOOPING
+     * 随机播放 Constant.PLAY_WITH_RANDOM
+     * 列表播放 Constant.PLAY_WITH_SONG_LIST
+     * 列表循环 Constant.PLAY_WITH_SONG_LIST_LOOPING
      */
     public int getPlayMode() {
         return playMode;
@@ -110,11 +120,12 @@ public class MusicPlayer {
      */
     public void play() {
         if (playByUserChoice) {
-            //点击列表后播放某首歌曲
+            //用户点击列表后播放某首歌曲
+            LogUtil.i(TAG, "on play() 用户点击列表，播放第" + position + "首歌曲");
             play(position);
         } else {
             //暂停或者停止点击的播放
-            //TODO
+            LogUtil.i(TAG, "on play() 用户播放，播放第" + position + "首歌曲");
             play(position);
         }
 
@@ -127,11 +138,13 @@ public class MusicPlayer {
      */
     public boolean pause() {
         if (mediaPlayer.isPlaying()) {
+            LogUtil.i(TAG, "pause() 用户点击暂停，播放器停止播放");
             mediaPlayer.pause();
             playStatus = PAUSE;
             onPause();
             return true;
         } else {
+            LogUtil.i(TAG, "pause() 用户点击暂停，原本播放器不在播放状态");
             return false;
         }
     }
@@ -142,6 +155,15 @@ public class MusicPlayer {
     public void playNext() {
         int next_position = this.getNextPosition();
         String next_path = getSongPath(next_position);
+        LogUtil.i(TAG, "playNext() 播放下一首，当前歌曲为第" + position + "首");
+        LogUtil.i(TAG, "playNext() 当前播放模式为" + playMode);
+        LogUtil.i(TAG, "           1.单曲播放");
+        LogUtil.i(TAG, "           2.单曲循环");
+        LogUtil.i(TAG, "           3.随机播放");
+        LogUtil.i(TAG, "           4.列表播放");
+        LogUtil.i(TAG, "           5.列表循环");
+        LogUtil.i(TAG, "playNext() 下一首是第" + next_position + "首");
+
         if (next_path != null) {
             try {
                 play(next_path);
@@ -202,25 +224,25 @@ public class MusicPlayer {
 
     /**
      * 获得即将播放的歌曲的下标
-     * 单曲播放 Constant.PLAYWITHSIGNAL
-     * 单曲循环 Constant.PLAYWITHSIGNALLOOPING
-     * 随机播放 Constant.PLAYWITHRADOM
-     * 列表播放 Cosntant.PLAYWITHSONGLIST
-     * 列表循环 Cosntant.PLAYWITHSONGLISTLOOPING
+     * 单曲播放 Constant.PLAY_WITH_SIGNAL
+     * 单曲循环 Constant.PLAY_WITH_SIGNAL_LOOPING
+     * 随机播放 Constant.PLAY_WITH_RANDOM
+     * 列表播放 Constant.PLAY_WITH_SONG_LIST
+     * 列表循环 Constant.PLAY_WITH_SONG_LIST_LOOPING
      *
      * @return
      */
     private int getNextPosition() {
         int next_position = -1;//当没有下一首时下标为-1
         switch (playMode) {
-            case PLAYWITHSIGNAL: {
+            case PLAY_WITH_SIGNAL: {
                 //单曲播放
                 if (position == -1) {
                     next_position = 0;
                 }
             }
             break;
-            case PLAYWITHSIGNALLOOPING: {
+            case PLAY_WITH_SIGNAL_LOOPING: {
                 //单曲循环
                 if (position != -1) {
                     next_position = position;
@@ -229,13 +251,13 @@ public class MusicPlayer {
                 }
             }
             break;
-            case PLAYWITHRADOM: {
+            case PLAY_WITH_RANDOM: {
                 //随机播放
                 Random random = new Random();
                 next_position = random.nextInt(songList.size());
             }
             break;
-            case PLAYWITHSONGLIST: {
+            case PLAY_WITH_SONG_LIST: {
                 //列表播放
                 if (position != -1) {//还没开始播放
                     next_position = 0;
@@ -246,7 +268,7 @@ public class MusicPlayer {
                 }
             }
             break;
-            case PLAYWITHSONGLISTLOOPING: {
+            case PLAY_WITH_SONG_LIST_LOOPING: {
                 //列表循环
                 if (position != -1) {//还没开始播放
                     next_position = 0;
@@ -266,8 +288,8 @@ public class MusicPlayer {
     /**
      * 播放
      *
-     * @param path
-     * @throws IOException
+     * @param path 歌曲文件的绝对路径
+     * @throws IOException 当文件路径或者播放器状态异常时抛出
      */
     private void play(String path) throws IOException {
         if (playStatus == PLAYING || playStatus == PAUSE) {
@@ -306,6 +328,7 @@ public class MusicPlayer {
      * 获取播放进度
      * 获取播放进度
      */
+
     public int getCurrentPosition() {
         return mediaPlayer.getCurrentPosition();
     }
@@ -367,7 +390,7 @@ public class MusicPlayer {
     /**
      *
      */
-    public void setListener() {
+    private void setListener() {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -391,7 +414,7 @@ public class MusicPlayer {
     }
 
     /**
-     * @param onCompletionListener
+     * @param onCompletionListener 播放器播放完成调用接口对象
      */
     public void addOnCompletionListener(OnCompletionListener onCompletionListener) {
         if (onCompletionListener == null) {
@@ -408,7 +431,7 @@ public class MusicPlayer {
     }
 
     /**
-     * @param onSeekCompleteListener
+     * @param onSeekCompleteListener 播放器移动到某位置完成调用接口对象
      */
 
     public void addOnSeekCompleteListener(OnSeekCompleteListener onSeekCompleteListener) {
@@ -426,7 +449,7 @@ public class MusicPlayer {
     }
 
     /**
-     * @param onPauseListener
+     * @param onPauseListener 播放器暂停调用接口对象
      */
     public void addOnPauseListener(OnPauseListener onPauseListener) {
         if (onPauseListener == null) {
@@ -443,7 +466,7 @@ public class MusicPlayer {
     }
 
     /**
-     * @param onPlayListener
+     * @param onPlayListener 播放器播放调用接口对象
      */
     public void addOnPlayListener(OnPlayListener onPlayListener) {
         if (onPlayListener == null) {
@@ -464,7 +487,7 @@ public class MusicPlayer {
 
 
     /**
-     * @param onPlayModeChangeListener
+     * @param onPlayModeChangeListener 播放器播放模式改变调用接口对象
      */
     public void addOnPlayModeChangeListener(OnPlayModeChangeListener onPlayModeChangeListener) {
         if (onPlayModeChangeListener == null) {
@@ -620,13 +643,13 @@ public class MusicPlayer {
 /*        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                if(playMode==PLAYWITHSONGLISTLOOPING){
+                if(playMode==PLAY_WITH_SONG_LIST_LOOPING){
                     setPlayWithSongListLooping(mp);
-                }else if (playMode==PLAYWITHSIGNAL){
+                }else if (playMode==PLAY_WITH_SIGNAL){
                     setPlayWithSignal(mp);
-                }else if (playMode== PLAYWITHSIGNALLOOPING){
+                }else if (playMode== PLAY_WITH_SIGNAL_LOOPING){
                     setPlayWithSignalLooping(mp);
-                }else if(playMode== PLAYWITHRADOM){
+                }else if(playMode== PLAY_WITH_RANDOM){
                     setPlayWithRadom(mp);
                 }else{
                     //playWithSongList

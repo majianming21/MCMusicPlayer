@@ -21,10 +21,8 @@ import com.mc.ink.mcmusicplayer.adpter.SongListAdpter;
 import com.mc.ink.mcmusicplayer.domain.Song;
 import com.mc.ink.mcmusicplayer.loader.SongLoader;
 import com.mc.ink.mcmusicplayer.service.MusicPlayer;
-import com.mc.ink.mcmusicplayer.util.LogUtil;
 
 import java.util.List;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,15 +72,16 @@ public class Main  extends Activity{
         songs=songLoader.getSongList(this);
         songListAdpter=new SongListAdpter(songs);
         songListView.setAdapter(songListAdpter);
-        Toast.makeText(this,"一共加载了"+songListAdpter.getItemCount()+"首歌曲",Toast.LENGTH_SHORT).show();
+        /*Toast.makeText(this,"一共加载了"+songListAdpter.getItemCount()+"首歌曲",Toast.LENGTH_SHORT).show();
         LogUtil.d(Tag,"一共加载了"+songListAdpter.getItemCount()+"首歌曲");
-        LogUtil.d(Tag,"一共加载了"+songs.size()+"首歌曲");
+        LogUtil.d(Tag,"一共加载了"+songs.size()+"首歌曲");*/
         musicPlayer=MusicPlayer.getMusicPlayer(this);
         musicPlayer.setPlayList(songs);
 
-        musicPlayer.setPosition(new Random().nextInt(songs.size()));
+        /*musicPlayer.setPosition(new Random().nextInt(songs.size()));*/
+        musicPlayer.setPosition(2);
         musicPlayer.play();
-        musicPlayer.setPlayMode(MusicPlayer.PLAYWITHRADOM);
+        musicPlayer.setPlayMode(MusicPlayer.PLAY_WITH_RANDOM);
         songListAdpter.setOnClickListener(new SongListAdpter.OnClickListener() {
             @Override
             public void onClick(View v, int position) {

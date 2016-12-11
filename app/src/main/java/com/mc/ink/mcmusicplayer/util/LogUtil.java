@@ -7,17 +7,17 @@ import android.util.Log;
  */
 
 public class LogUtil{
-    private static final char VERBOSE=1;
-    private static final char DEBUG=2;
-    private static final char INFO=3;
-    private static final char WARN=4;
-    private static final char ERROR=5;
-    private static final char ASSERT=6;
+    private static final int VERBOSE = 1;
+    private static final int DEBUG = 2;
+    private static final int INFO = 3;
+    private static final int WARN = 4;
+    private static final int ERROR = 5;
+    private static final int ASSERT = 6;
 
-    // private static final char EVERYTHING=0;
-    private static final char NOTHING=7;
+    // private static final int EVERYTHING=0;
+    private static final int NOTHING = 7;
 
-    private static char level=INFO;
+    private static int level = VERBOSE;
 
 
 

@@ -110,7 +110,7 @@ public class SongListActivity extends Activity {
         sharedPreferences=getSharedPreferences("data",MODE_PRIVATE);
         editor=getSharedPreferences("data",MODE_PRIVATE).edit();
         position=sharedPreferences.getInt("current_song_position",-1);
-        playMode = sharedPreferences.getInt("play_mode", MusicPlayer.PLAYWITHSIGNAL);
+        playMode = sharedPreferences.getInt("play_mode", MusicPlayer.PLAY_WITH_SIGNAL);
         playServiceIntent=new Intent(this,PlayServiceNotic.class);
     /*    MusicPlayer musicPlayer=MusicPlayer.getMusicPlayer(this);
         musicPlayer.setOnCompletionListener(new MusicPlayer.OnCompletionListener() {
@@ -233,13 +233,13 @@ public class SongListActivity extends Activity {
       mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                if(playMode==PLAYWITHSONGLISTLOOPING){
+                if(playMode==PLAY_WITH_SONG_LIST_LOOPING){
                     setPlayWithSongListLooping(mp);
-                }else if (playMode==PLAYWITHSIGNAL){
+                }else if (playMode==PLAY_WITH_SIGNAL){
                     setPlayWithSignal(mp);
-                }else if (playMode== PLAYWITHSIGNALLOOPING){
+                }else if (playMode== PLAY_WITH_SIGNAL_LOOPING){
                     setPlayWithSignalLooping(mp);
-                }else if(playMode== PLAYWITHRADOM){
+                }else if(playMode== PLAY_WITH_RANDOM){
                     setPlayWithRadom(mp);
                 }else{
                     //playWithSongList
