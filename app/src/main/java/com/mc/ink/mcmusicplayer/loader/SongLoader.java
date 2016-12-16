@@ -11,14 +11,21 @@ import com.mc.ink.mcmusicplayer.domain.Song;
 import java.util.ArrayList;
 
 /**
- * Created by INK on 2016/12/8.
+ * 歌曲加载
+ * Created by 马坚铭
+ * on 2016/12/8.
  */
 
 public class SongLoader {
+  /*  private List<String> mimeType;
+
+    public SongLoader() {
+        mimeType = new ArrayList<>();
+    }*/
 
     public ArrayList<Song> getSongList(Context context) {
         ArrayList<Song> songs = new ArrayList<>();
-        Cursor cursor=getCursor(context);
+        Cursor cursor = getCursor(context);
         if (cursor.moveToFirst()) {
             Song song;
             do {
@@ -26,6 +33,7 @@ public class SongLoader {
                 song.setTitle(cursor.getString(2));
                 song.setData(cursor.getString(9));
                 song.setDuration(cursor.getLong(3));
+                song.setMimeType(cursor.getString(7));
                 songs.add(song);
             } while (cursor.moveToNext());
         }
@@ -34,7 +42,7 @@ public class SongLoader {
     }
 
 
-    private Cursor getCursor(Context context){
+    private Cursor getCursor(Context context) {
         MediaScannerConnection.scanFile(context, new String[]{Environment
                 .getExternalStorageDirectory().getAbsolutePath()}, null, null);
         Cursor cursor = context.getContentResolver().query(
@@ -50,9 +58,12 @@ public class SongLoader {
                         MediaStore.Audio.Media.SIZE,
                         MediaStore.Audio.Media.DATA
                 },
-                MediaStore.Audio.Media.MIME_TYPE + "=? or "
-                        + MediaStore.Audio.Media.MIME_TYPE + "=?",
-                new String[]{"audio/mpeg", "audio/x-ms-wma"}, null);
+                //  MediaStore.Audio.Media.MIME_TYPE + " like ?",new String[]{"%"},null);
+                MediaStore.Audio.Media.MIME_TYPE + "=? or " +
+                        MediaStore.Audio.Media.MIME_TYPE + "=? or " +
+                        MediaStore.Audio.Media.MIME_TYPE + "=?",
+                new String[]{"audio/mpeg", "audio/x-ms-wma", "audio/quicktime"}, null);
         return cursor;
     }
+
 }

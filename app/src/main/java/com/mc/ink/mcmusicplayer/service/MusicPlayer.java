@@ -2,8 +2,8 @@ package com.mc.ink.mcmusicplayer.service;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.mc.ink.mcmusicplayer.R;
 import com.mc.ink.mcmusicplayer.domain.Song;
@@ -16,7 +16,8 @@ import java.util.Random;
 
 /**
  * 主音乐播放器
- * Created by INK on 2016/12/8.
+ * Created by INK
+ * on 2016/12/8.
  */
 
 public class MusicPlayer {
@@ -112,19 +113,24 @@ public class MusicPlayer {
 
     public void changePlayStatus() {
         if (playStatus == PLAYING) {
-            onPause();
             pause();
+            onPause();
         } else if (playStatus == PAUSE) {
-            onPlay(true);
             play();
+            onPlay(true);
+        } else {
+            play();
+            onPlay(false);
         }
     }
     /**
      * 点击播放按钮
      */
     private void play() {
+        LogUtil.i(TAG, "play: 用户点击了play");
         if (position == -1) {
-            playNext(true);
+            LogUtil.i(TAG, "play: position 为 -1");
+            position = playNext(true);
         } else if (playStatus == MusicPlayer.PAUSE) {
             mediaPlayer.start();
         }
@@ -146,7 +152,7 @@ public class MusicPlayer {
     /**
      * 播放下一首
      */
-    public void playNext(boolean fromUser) {
+    public int playNext(boolean fromUser) {
         int next_position = this.getNextPosition(fromUser);
         String next_path = getSongPath(next_position);
         LogUtil.i(TAG, "playNext() 播放下一首，当前歌曲为第" + position + "首");
@@ -166,6 +172,7 @@ public class MusicPlayer {
                 e.printStackTrace();
             }
         }
+        return next_position;
     }
 
     /**
@@ -176,10 +183,11 @@ public class MusicPlayer {
      */
     public void play(int position) {
             String path = getSongPath(position);
+        LogUtil.i(TAG, path);
             if (path != null) {
                 try {
-                    play(path, false);
                     this.position = position;
+                    play(path, false);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -209,6 +217,7 @@ public class MusicPlayer {
      * @param position 歌曲在列表中的偏移值
      * @return 为歌曲路径
      */
+    @Nullable
     private String getSongPath(int position) {
         if (songList == null || songList.isEmpty() || songList.size() <= position) {
             return null;

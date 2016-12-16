@@ -3,6 +3,7 @@ package com.mc.ink.mcmusicplayer.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,15 +22,23 @@ import com.mc.ink.mcmusicplayer.adpter.SongListAdpter;
 import com.mc.ink.mcmusicplayer.domain.Song;
 import com.mc.ink.mcmusicplayer.loader.SongLoader;
 import com.mc.ink.mcmusicplayer.service.MusicPlayer;
+import com.mc.ink.mcmusicplayer.util.LogUtil;
+
+import org.litepal.LitePal;
 
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by INK on 2016/12/9.
+ * Created by INK
+ * on 2016/12/9.
  */
 
+
+/**
+ * https://github.com/LitePalFramework/LitePal
+ */
 public class Main  extends Activity{
     private int playStatus;
     private int playMode;
@@ -62,6 +71,8 @@ public class Main  extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LitePal.initialize(this);
+        SQLiteDatabase db = LitePal.getDatabase();
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         initUi();
@@ -77,15 +88,15 @@ public class Main  extends Activity{
         LogUtil.d(Tag,"一共加载了"+songs.size()+"首歌曲");*/
         musicPlayer=MusicPlayer.getMusicPlayer(this);
         musicPlayer.setPlayList(songs);
-
         /*musicPlayer.setPosition(new Random().nextInt(songs.size()));*/
-        musicPlayer.play(2);
+        //  musicPlayer.play(2);
         musicPlayer.setPlayMode(MusicPlayer.PLAY_WITH_RANDOM);
         songListAdpter.setOnClickListener(new SongListAdpter.OnClickListener() {
             @Override
             public void onClick(View v, int position) {
                 musicPlayer.play(position);
-                Toast.makeText(Main.this, v.toString() + " " + position, Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(Main.this, v.toString() + " " + position, Toast.LENGTH_SHORT).show();
+                LogUtil.i(Tag, "用户点击,开始播放第" + position + "首歌曲");
             }
         });
 
@@ -110,6 +121,9 @@ public class Main  extends Activity{
                     Toast.makeText(Main.this, songs.get(posotion).getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
+        Song song = new Song();
+        song.setTitle("你的名字");
+        song.save();
 
 
     }

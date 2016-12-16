@@ -42,7 +42,7 @@ public class SongListAdpter extends RecyclerView.Adapter<SongListAdpter.ViewHold
         Song song=songList.get(position);
         holder.data.setText(song.getData());
         holder.name.setText(song.getTitle());
-        holder.size.setText(song.getStringDuration());
+        holder.size.setText(song.getStrDuration());
 
     }
 

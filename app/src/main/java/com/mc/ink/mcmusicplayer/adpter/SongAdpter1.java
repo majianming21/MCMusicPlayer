@@ -49,7 +49,7 @@ public class SongAdpter1 extends ArrayAdapter<Song> {
             view=convertView;
             songHolder= (SongHolder) view.getTag();
         }
-        songHolder.size.setText(song.getStringDuration());
+        songHolder.size.setText(song.getStrDuration());
         songHolder.name.setText(song.getTitle());
         songHolder.data.setText(song.getData());
         return view;
