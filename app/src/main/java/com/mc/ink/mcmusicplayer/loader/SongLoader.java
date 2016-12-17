@@ -26,14 +26,32 @@ public class SongLoader {
     public ArrayList<Song> getSongList(Context context) {
         ArrayList<Song> songs = new ArrayList<>();
         Cursor cursor = getCursor(context);
+      /*  MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+
+
+                MediaStore.Audio.Media.MIME_TYPE,
+                MediaStore.Audio.Media.SIZE,
+                MediaStore.Audio.Media.DATA;*/
+
+
+
         if (cursor.moveToFirst()) {
             Song song;
             do {
                 song = new Song();
-                song.setTitle(cursor.getString(2));
-                song.setData(cursor.getString(9));
-                song.setDuration(cursor.getLong(3));
-                song.setMimeType(cursor.getString(7));
+                song.setDisplayName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));
+                song.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+                song.setDuration(cursor.getLong((cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))));
+                song.setArtistName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)));
+                // MediaStore.Audio.Media.YEAR
+                song.setMimeType(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)));
+                song.setSize(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE)));
+                song.setData(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
                 songs.add(song);
             } while (cursor.moveToNext());
         }

@@ -1,11 +1,13 @@
 package com.mc.ink.mcmusicplayer.activity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -25,6 +27,7 @@ import com.mc.ink.mcmusicplayer.service.MusicPlayer;
 import com.mc.ink.mcmusicplayer.util.LogUtil;
 
 import org.litepal.LitePal;
+import org.litepal.crud.DataSupport;
 
 import java.util.List;
 import java.util.Timer;
@@ -54,6 +57,7 @@ public class Main  extends Activity{
     private RecyclerView songListView;
 
     private Button pause;
+    private Button search;
     private EditText searchText;
     private Timer timer;
     private TimerTask timerTask;
@@ -61,42 +65,69 @@ public class Main  extends Activity{
 
     private Intent playServiceIntent;
     private Bundle playServiceBundle=new Bundle();
-    private List<Song> songs;
+    //   private List<Song> songs;
     private SongListAdpter songListAdpter;
     private MusicPlayer musicPlayer;
     private String Tag="Main";
+    private List<Song> songs1;
 
+
+    private SQLiteDatabase db;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LitePal.initialize(this);
-        SQLiteDatabase db = LitePal.getDatabase();
+        db = LitePal.getDatabase();
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         initUi();
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
         songListView.setLayoutManager(linearLayoutManager);
 //        songListView.setItemAnimator(new DefaultItemAnimator());
-        songLoader=new SongLoader();
-        songs=songLoader.getSongList(this);
-        songListAdpter=new SongListAdpter(songs);
+        // songLoader=new SongLoader();
+        // songs=songLoader.getSongList(this);
+        //DataSupport.deleteAll(Song.class);
+        // for(Song song:songs){
+        //     song.save();
+        //   }
+        songs1 = DataSupport.findAll(Song.class);
+        songListAdpter = new SongListAdpter(songs1);
         songListView.setAdapter(songListAdpter);
-        /*Toast.makeText(this,"一共加载了"+songListAdpter.getItemCount()+"首歌曲",Toast.LENGTH_SHORT).show();
-        LogUtil.d(Tag,"一共加载了"+songListAdpter.getItemCount()+"首歌曲");
-        LogUtil.d(Tag,"一共加载了"+songs.size()+"首歌曲");*/
         musicPlayer=MusicPlayer.getMusicPlayer(this);
-        musicPlayer.setPlayList(songs);
-        /*musicPlayer.setPosition(new Random().nextInt(songs.size()));*/
-        //  musicPlayer.play(2);
+        musicPlayer.setPlayList(songs1);
         musicPlayer.setPlayMode(MusicPlayer.PLAY_WITH_RANDOM);
+        songListAdpter.setOnDetailsButtonClickListener(new SongListAdpter.OnDetailsButtonClickListener() {
+            @Override
+            public void onClick(View v, final int position) {
+                LogUtil.d(Tag, "用户点击,第" + position + "首歌曲详情按钮");
+                AlertDialog.Builder builder = new AlertDialog.Builder(Main.this, R.style.AlertDialogCustom);
+                builder.setMessage("确认删除 " + songs1.get(position).getTitle() + " 吗");
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int count = 0;
+                        //DataSupport.delete(Song.class,position);
+                        db.beginTransaction();
+                        count = db.delete("song", "title =?", new String[]{songs1.get(position).getTitle()});
+                        songListAdpter.notifyDataSetChanged();
+                        songs1.remove(position);
+                        db.setTransactionSuccessful();
+                        db.endTransaction();
+                        Toast.makeText(Main.this, "移除" + count + "首歌曲成功", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.setNegativeButton("取消", null);
+                builder.setCancelable(false);
+                builder.show();
+            }
+        });
         songListAdpter.setOnClickListener(new SongListAdpter.OnClickListener() {
             @Override
-            public void onClick(View v, int position) {
+            public void onClick(View view, int position) {
                 musicPlayer.play(position);
-                //  Toast.makeText(Main.this, v.toString() + " " + position, Toast.LENGTH_SHORT).show();
-                LogUtil.i(Tag, "用户点击,开始播放第" + position + "首歌曲");
+                LogUtil.d(Tag, "用户点击,开始播放第" + position + "首歌曲");
             }
         });
 
@@ -118,12 +149,10 @@ public class Main  extends Activity{
                 if (fromUser)
                     Toast.makeText(Main.this, "播放", Toast.LENGTH_SHORT).show();
                 else
-                    Toast.makeText(Main.this, songs.get(posotion).getTitle(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Main.this, songs1.get(posotion).getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
-        Song song = new Song();
-        song.setTitle("你的名字");
-        song.save();
+
 
 
     }
@@ -138,6 +167,6 @@ public class Main  extends Activity{
         songListView = (RecyclerView) findViewById(R.id.db);
         spinner= (Spinner) findViewById(R.id.spinner);
         currentSongName= (TextView) findViewById(R.id.current_song_name);
-       // search= (Button) findViewById(R.id.btn_search);
+        search = (Button) findViewById(R.id.btn_search);
     }
 }
