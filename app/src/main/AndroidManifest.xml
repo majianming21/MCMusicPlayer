@@ -15,9 +15,10 @@
                 android:name=".SongDetails"
                 android:theme="@android:style/Theme.Dialog" />
             <activity
-                android:name=".activity.Main"
+                android:name=".activity.PlayerMainActivity"
                 android:launchMode="singleTask"
-                android:windowSoftInputMode="adjustPan">
+                android:windowSoftInputMode="adjustPan"
+                android:theme="@style/AppTheme.NoActionBar">
                 <intent-filter>
                     <action android:name="android.intent.action.MAIN" />
                     <category android:name="android.intent.category.LAUNCHER" />

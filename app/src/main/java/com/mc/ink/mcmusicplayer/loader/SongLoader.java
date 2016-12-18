@@ -9,7 +9,7 @@ import android.provider.MediaStore;
 import com.mc.ink.mcmusicplayer.domain.Song;
 
 import java.util.ArrayList;
-
+import java.util.List;
 /**
  * 歌曲加载
  * Created by 马坚铭
@@ -17,29 +17,32 @@ import java.util.ArrayList;
  */
 
 public class SongLoader {
-  /*  private List<String> mimeType;
+    private List<String> mimeType;
+    private StringBuilder selection;
 
     public SongLoader() {
         mimeType = new ArrayList<>();
-    }*/
+        selection = new StringBuilder();
+        mimeType.add("audio/mpeg");//mp3
+        mimeType.add("audio/x-ms-wma");//wma
+        mimeType.add("audio/quicktime");//ape
+        // new String[]{mimeType.toString()};
+        //MediaStore.Audio.Media.MIME_TYPE + "=? or " +
+        for (int i = 0; i < mimeType.size(); i++) {
+            selection.append(MediaStore.Audio.Media.MIME_TYPE);
+            selection.append("=? ");
+            if (i != mimeType.size() - 1)
+                selection.append("or ");
+        }
+        if (selection.length() == 0) {
+            selection.append(MediaStore.Audio.Media.MIME_TYPE);
+            selection.append("=?");
+        }
+    }
 
     public ArrayList<Song> getSongList(Context context) {
         ArrayList<Song> songs = new ArrayList<>();
         Cursor cursor = getCursor(context);
-      /*  MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-
-
-                MediaStore.Audio.Media.MIME_TYPE,
-                MediaStore.Audio.Media.SIZE,
-                MediaStore.Audio.Media.DATA;*/
-
-
-
         if (cursor.moveToFirst()) {
             Song song;
             do {
@@ -76,11 +79,13 @@ public class SongLoader {
                         MediaStore.Audio.Media.SIZE,
                         MediaStore.Audio.Media.DATA
                 },
-                //  MediaStore.Audio.Media.MIME_TYPE + " like ?",new String[]{"%"},null);
+              /*  //  MediaStore.Audio.Media.MIME_TYPE + " like ?",new String[]{"%"},null);
                 MediaStore.Audio.Media.MIME_TYPE + "=? or " +
                         MediaStore.Audio.Media.MIME_TYPE + "=? or " +
                         MediaStore.Audio.Media.MIME_TYPE + "=?",
-                new String[]{"audio/mpeg", "audio/x-ms-wma", "audio/quicktime"}, null);
+                new String[]{"audio/mpeg", "audio/x-ms-wma", "audio/quicktime"}, null);*/
+                selection.toString(),
+                mimeType.toArray(new String[mimeType.size()]), null);
         return cursor;
     }
 

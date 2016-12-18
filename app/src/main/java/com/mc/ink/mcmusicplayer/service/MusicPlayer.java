@@ -44,6 +44,7 @@ public class MusicPlayer {
     private List<OnPauseListener> onPauseListenerList;
     private List<OnPlayListener> onPlayListenerList;
     private List<OnPlayModeChangeListener> onPlayModeChangeListenerList;
+    private List<OnErrorListener> onErrorListenerList;
     private boolean playByUserChoice;
 
     private MusicPlayer(Context context) {
@@ -116,17 +117,18 @@ public class MusicPlayer {
             pause();
             onPause();
         } else if (playStatus == PAUSE) {
-            play();
-            onPlay(true);
+            if (play())
+                onPlay(true);
         } else {
-            play();
-            onPlay(false);
+            if (play())
+                onPlay(false);
         }
     }
+
     /**
      * 点击播放按钮
      */
-    private void play() {
+    private boolean play() {
         LogUtil.i(TAG, "play: 用户点击了play");
         if (position == -1) {
             LogUtil.i(TAG, "play: position 为 -1");
@@ -134,7 +136,12 @@ public class MusicPlayer {
         } else if (playStatus == MusicPlayer.PAUSE) {
             mediaPlayer.start();
         }
-        playStatus = PLAYING;
+        if (position == -1) {
+            return false;
+        } else {
+            playStatus = PLAYING;
+            return true;
+        }
     }
 
     /**
@@ -153,6 +160,10 @@ public class MusicPlayer {
      * 播放下一首
      */
     public int playNext(boolean fromUser) {
+        if (songList.size() == 0) {
+            onError();
+            return -1;
+        }
         int next_position = this.getNextPosition(fromUser);
         String next_path = getSongPath(next_position);
         LogUtil.i(TAG, "playNext() 播放下一首，当前歌曲为第" + position + "首");
@@ -175,23 +186,25 @@ public class MusicPlayer {
         return next_position;
     }
 
+
     /**
      * 播放
      * 用户点击歌曲列表得到
+     *
      * @param position 播放歌曲列表中偏移值为position的歌曲
      *                 如果偏移值为-1，则播放第-1的下一首，即第0首歌曲
      */
     public void play(int position) {
-            String path = getSongPath(position);
+        String path = getSongPath(position);
         LogUtil.i(TAG, path);
-            if (path != null) {
-                try {
-                    this.position = position;
-                    play(path, false);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        if (path != null) {
+            try {
+                this.position = position;
+                play(path, false);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
     }
 
 
@@ -204,8 +217,8 @@ public class MusicPlayer {
 
     /**
      * 获得播放状态
-     * @return 播放状态
      *
+     * @return 播放状态
      */
     public int playStatus() {
         return playStatus;
@@ -230,6 +243,7 @@ public class MusicPlayer {
     /**
      * 获得即将播放的歌曲的下标
      * 提供给自动播放队列
+     *
      * @return
      */
     private int getNextPosition(boolean fromUser) {
@@ -255,7 +269,7 @@ public class MusicPlayer {
             case PLAY_WITH_RANDOM: {
                 //随机播放
                 Random random = new Random();
-                next_position = random.nextInt(songList.size());
+                next_position = random.nextInt(songList.size() != 0 ? songList.size() : 1);
             }
             break;
             case PLAY_WITH_SONG_LIST: {
@@ -329,6 +343,17 @@ public class MusicPlayer {
         if (this.onPauseListenerList != null) {
             for (OnPauseListener onPauseListener : onPauseListenerList) {
                 onPauseListener.onPause();
+            }
+        }
+    }
+
+    /**
+     * 错误时触发
+     */
+    private void onError() {
+        if (this.onErrorListenerList != null) {
+            for (OnErrorListener onErrorListener : onErrorListenerList) {
+                onErrorListener.onError();
             }
         }
     }
@@ -513,6 +538,24 @@ public class MusicPlayer {
      */
     public interface OnPlayModeChangeListener {
         void onChange();
+    }
+
+
+    /**
+     * @param onErrorListener 播放器暂停调用接口对象
+     */
+    public void addOnErrorListener(OnErrorListener onErrorListener) {
+        if (onErrorListener == null) {
+            return;
+        }
+        if (onErrorListenerList == null) {
+            onErrorListenerList = new ArrayList<>();
+        }
+        this.onErrorListenerList.add(onErrorListener);
+    }
+
+    public interface OnErrorListener {
+        void onError();
     }
 
 }
