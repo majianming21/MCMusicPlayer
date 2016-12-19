@@ -55,7 +55,7 @@ public class Main extends Activity {
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPreferences;
     private TextView max, current, currentSongName;
-    private RecyclerView songListView;
+    // private RecyclerView songListView;
 
     private Button play;
     private Button search;
@@ -80,20 +80,20 @@ public class Main extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LitePal.initialize(this);
-        db = LitePal.getDatabase();
+  /*      db = LitePal.getDatabase();
         setContentView(R.layout.activity_main);
         initUi();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         songListView.setLayoutManager(linearLayoutManager);
         songListView.setItemAnimator(new DefaultItemAnimator());
-/*
+
        songLoader=new SongLoader();
        songsFromSystemMedieDatabse=songLoader.getSongList(this);
         DataSupport.deleteAll(Song.class);
         for(Song song:songsFromSystemMedieDatabse){
             song.save();
            }*/
-
+/*
 
         songsFromAppDatabse = DataSupport.findAll(Song.class);
         songListAdpter = new SongListAdpter(songsFromAppDatabse);
@@ -160,7 +160,7 @@ public class Main extends Activity {
             public void onError() {
                 Toast.makeText(Main.this, "播放列表错误", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
 
     }
@@ -172,7 +172,7 @@ public class Main extends Activity {
         //  max = (TextView) findViewById(R.id.max);
         //  current = (TextView) findViewById(R.id.curr);
         play = (Button) findViewById(R.id.list_play);
-        songListView = (RecyclerView) findViewById(R.id.list_song_list);
+        //    songListView = (RecyclerView) findViewById(R.id.list_song_list);
         //  spinner = (Spinner) findViewById(R.id.spinner);
         //   currentSongName = (TextView) findViewById(R.id.current_song_name);
         //   search = (Button) findViewById(R.id.btn_search);

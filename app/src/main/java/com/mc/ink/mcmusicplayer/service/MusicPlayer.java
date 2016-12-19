@@ -39,12 +39,12 @@ public class MusicPlayer {
     private char playStatus;
     private int position;
     private Context context;
-    private List<OnCompletionListener> onCompletionListenerList;
-    private List<OnSeekCompleteListener> onSeekCompleteListenerList;
-    private List<OnPauseListener> onPauseListenerList;
-    private List<OnPlayListener> onPlayListenerList;
-    private List<OnPlayModeChangeListener> onPlayModeChangeListenerList;
-    private List<OnErrorListener> onErrorListenerList;
+    private OnCompletionListener onCompletionListener;
+    private OnSeekCompleteListener onSeekCompleteListener;
+    private OnPauseListener onPauseListener;
+    private OnPlayListener onPlayListener;
+    private OnPlayModeChangeListener onPlayModeChangeListener;
+    private OnErrorListener onErrorListener;
     private boolean playByUserChoice;
 
     private MusicPlayer(Context context) {
@@ -93,10 +93,8 @@ public class MusicPlayer {
         LogUtil.i(TAG, "                          4.列表播放");
         LogUtil.i(TAG, "                          5.列表循环");
         this.playMode = playMode;
-        if (this.onPlayModeChangeListenerList != null) {
-            for (OnPlayModeChangeListener onPlayModeChangeListener : onPlayModeChangeListenerList) {
+        if (this.onPlayModeChangeListener != null) {
                 onPlayModeChangeListener.onChange();
-            }
         }
     }
 
@@ -328,10 +326,8 @@ public class MusicPlayer {
      * 遍历所有监听播放状态的监听器
      */
     private void onPlay(boolean fromUser) {
-        if (this.onPlayListenerList != null) {
-            for (OnPlayListener onPlayListener : onPlayListenerList) {
+        if (this.onPlayListener != null) {
                 onPlayListener.onPlay(position, fromUser);
-            }
         }
     }
 
@@ -340,10 +336,8 @@ public class MusicPlayer {
      * 遍历所有监听暂停状态的监听器
      */
     private void onPause() {
-        if (this.onPauseListenerList != null) {
-            for (OnPauseListener onPauseListener : onPauseListenerList) {
+        if (this.onPauseListener != null) {
                 onPauseListener.onPause();
-            }
         }
     }
 
@@ -351,10 +345,8 @@ public class MusicPlayer {
      * 错误时触发
      */
     private void onError() {
-        if (this.onErrorListenerList != null) {
-            for (OnErrorListener onErrorListener : onErrorListenerList) {
+        if (this.onErrorListener != null) {
                 onErrorListener.onError();
-            }
         }
     }
 
@@ -428,10 +420,8 @@ public class MusicPlayer {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                if (onCompletionListenerList != null) {
-                    for (OnCompletionListener onCompletionListener : onCompletionListenerList) {
+                if (onCompletionListener != null) {
                         onCompletionListener.onCompletion();
-                    }
                 }
                 playNext(false);
             }
@@ -439,9 +429,8 @@ public class MusicPlayer {
         mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
             @Override
             public void onSeekComplete(MediaPlayer mp) {
-                if (onSeekCompleteListenerList != null) {
-                    for (OnSeekCompleteListener onSeekCompleteListener : onSeekCompleteListenerList)
-                        onSeekCompleteListener.onSeekComplete();
+                if (onSeekCompleteListener != null) {
+                    onSeekCompleteListener.onSeekComplete();
                 }
             }
         });
@@ -450,14 +439,8 @@ public class MusicPlayer {
     /**
      * @param onCompletionListener 播放器播放完成调用接口对象
      */
-    public void addOnCompletionListener(OnCompletionListener onCompletionListener) {
-        if (onCompletionListener == null) {
-            return;
-        }
-        if (onCompletionListenerList != null) {
-            onCompletionListenerList = new ArrayList<>();
-        }
-        this.onCompletionListenerList.add(onCompletionListener);
+    public void setOnCompletionListener(OnCompletionListener onCompletionListener) {
+        this.onCompletionListener = onCompletionListener;
     }
 
     public interface OnCompletionListener {
@@ -468,14 +451,8 @@ public class MusicPlayer {
      * @param onSeekCompleteListener 播放器移动到某位置完成调用接口对象
      */
 
-    public void addOnSeekCompleteListener(OnSeekCompleteListener onSeekCompleteListener) {
-        if (onSeekCompleteListener == null) {
-            return;
-        }
-        if (onSeekCompleteListenerList == null) {
-            onSeekCompleteListenerList = new ArrayList<>();
-        }
-        this.onSeekCompleteListenerList.add(onSeekCompleteListener);
+    public void setOnSeekCompleteListener(OnSeekCompleteListener onSeekCompleteListener) {
+        this.onSeekCompleteListener = onSeekCompleteListener;
     }
 
     public interface OnSeekCompleteListener {
@@ -485,14 +462,8 @@ public class MusicPlayer {
     /**
      * @param onPauseListener 播放器暂停调用接口对象
      */
-    public void addOnPauseListener(OnPauseListener onPauseListener) {
-        if (onPauseListener == null) {
-            return;
-        }
-        if (onPauseListenerList == null) {
-            onPauseListenerList = new ArrayList<>();
-        }
-        this.onPauseListenerList.add(onPauseListener);
+    public void setOnPauseListener(OnPauseListener onPauseListener) {
+        this.onPauseListener = onPauseListener;
     }
 
     public interface OnPauseListener {
@@ -502,14 +473,8 @@ public class MusicPlayer {
     /**
      * @param onPlayListener 播放器播放调用接口对象
      */
-    public void addOnPlayListener(OnPlayListener onPlayListener) {
-        if (onPlayListener == null) {
-            return;
-        }
-        if (onPlayListenerList == null) {
-            onPlayListenerList = new ArrayList<>();
-        }
-        this.onPlayListenerList.add(onPlayListener);
+    public void setOnPlayListener(OnPlayListener onPlayListener) {
+        this.onPlayListener = onPlayListener;
     }
 
     /**
@@ -523,14 +488,8 @@ public class MusicPlayer {
     /**
      * @param onPlayModeChangeListener 播放器播放模式改变调用接口对象
      */
-    public void addOnPlayModeChangeListener(OnPlayModeChangeListener onPlayModeChangeListener) {
-        if (onPlayModeChangeListener == null) {
-            return;
-        }
-        if (onPlayModeChangeListenerList == null) {
-            onPlayModeChangeListenerList = new ArrayList<>();
-        }
-        this.onPlayModeChangeListenerList.add(onPlayModeChangeListener);
+    public void setOnPlayModeChangeListener(OnPlayModeChangeListener onPlayModeChangeListener) {
+        this.onPlayModeChangeListener = onPlayModeChangeListener;
     }
 
     /**
@@ -544,14 +503,8 @@ public class MusicPlayer {
     /**
      * @param onErrorListener 播放器暂停调用接口对象
      */
-    public void addOnErrorListener(OnErrorListener onErrorListener) {
-        if (onErrorListener == null) {
-            return;
-        }
-        if (onErrorListenerList == null) {
-            onErrorListenerList = new ArrayList<>();
-        }
-        this.onErrorListenerList.add(onErrorListener);
+    public void setOnErrorListener(OnErrorListener onErrorListener) {
+        this.onErrorListener = onErrorListener;
     }
 
     public interface OnErrorListener {
