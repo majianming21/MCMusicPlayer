@@ -32,8 +32,8 @@ import com.mc.ink.mcmusicplayer.adpter.SongAdpter1;
 import com.mc.ink.mcmusicplayer.adpter.SongListAdpter;
 import com.mc.ink.mcmusicplayer.domain.Song;
 import com.mc.ink.mcmusicplayer.service.MusicPlayer;
-import com.mc.ink.mcmusicplayer.util.TimeUtil;
 import com.mc.ink.mcmusicplayer.service.PlayServiceNotic;
+import com.mc.ink.mcmusicplayer.util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.Timer;

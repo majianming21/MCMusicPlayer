@@ -7,10 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mc.ink.mcmusicplayer.R;
-import com.mc.ink.mcmusicplayer.activity.SongListActivity;
 import com.mc.ink.mcmusicplayer.domain.Song;
 
 import java.util.List;

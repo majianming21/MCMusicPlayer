@@ -1,15 +1,10 @@
 package com.mc.ink.mcmusicplayer.activity;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
-import android.view.View;
 
 import com.mc.ink.mcmusicplayer.R;
 import com.mc.ink.mcmusicplayer.fragment.ListFragment;
@@ -40,10 +35,10 @@ public class PlayerMainActivity extends FragmentActivity {
     public void FragmentInit() {
         fragments = new ArrayList<>();
         fragments.clear();
-        playFragment = new PlayFragment();
         listFragment = new ListFragment();
-        fragments.add(listFragment);
+        playFragment = new PlayFragment();
         fragments.add(playFragment);
+        fragments.add(listFragment);
     }
 
     private void ViewInit() {

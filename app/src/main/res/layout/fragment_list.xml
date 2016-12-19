@@ -4,14 +4,14 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
-
+    <!--播放器栏 -->
     <RelativeLayout
         android:id="@+id/list_playbar"
         android:layout_width="match_parent"
         android:layout_height="70dip"
         android:layout_alignParentBottom="true"
         android:background="#eeeeee">
-
+        <!--播放暂停按钮-->
         <Button
             android:id="@+id/list_play"
             android:layout_width="wrap_content"
@@ -19,52 +19,62 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:background="@drawable/play" />
-
+        <!--播放栏左边部分-->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@id/list_play">
-
+            <!--进度条-->
             <android.support.v7.widget.AppCompatSeekBar
                 android:id="@+id/list_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true" />
-
+            <!--歌曲当前播放时间-->
             <TextView
                 android:id="@+id/list_play_current_position"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/list_seekbar"
+                android:layout_below="@id/list_seekbar"
                 android:layout_alignParentLeft="true"
                 android:text="00:00"
                 android:paddingLeft="20dp" />
-
+            <!--歌曲名字位置-->
+            <!-- android:maxLength="20"-->
             <TextView
                 android:id="@+id/list_play_current_song_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_above="@id/list_seekbar"
                 android:layout_centerHorizontal="true"
-                android:text="最冷一天" />
+                android:paddingRight="20dip"
+                android:paddingLeft="20dip"
 
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:scrollHorizontally="true"
+
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever" />
+            <!--歌曲长度-->
             <TextView
                 android:id="@+id/list_play_max_position"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/list_seekbar"
+                android:layout_below="@id/list_seekbar"
                 android:layout_alignParentRight="true"
                 android:text="30:00"
                 android:paddingRight="20dip" />
         </RelativeLayout>
     </RelativeLayout>
-
+    <!--歌曲列表-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list_song_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/list_playbar" />
-
+    <!--播放模式切换-->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/list_play_mode"
         android:layout_width="wrap_content"

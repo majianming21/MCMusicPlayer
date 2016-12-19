@@ -2,18 +2,12 @@ package com.mc.ink.mcmusicplayer.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 
-import com.mc.ink.mcmusicplayer.adpter.SongListAdpter;
 import com.mc.ink.mcmusicplayer.domain.Song;
-
-import org.litepal.LitePal;
-import org.litepal.crud.DataSupport;
+import com.mc.ink.mcmusicplayer.util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +26,7 @@ public class PlayerService extends Service {
     private List<OnPlayListener> onPlayListenerList;
     private List<OnPlayModeChangeListener> onPlayModeChangeListenerList;
     private List<OnErrorListener> onErrorListenerList;
+    private List<OnPlayPositionChangeListener> onPlayPositionChangeListenerList;
 
     @Nullable
     @Override
@@ -64,11 +59,11 @@ public class PlayerService extends Service {
         });
         musicPlayer.setOnPlayListener(new MusicPlayer.OnPlayListener() {
             @Override
-            public void onPlay(int posotion, boolean fromUser) {
+            public void onPlay(int position, int song_duration, boolean fromUser) {
                 if (onPlayListenerList != null) {
                     for (OnPlayListener onPlayListener : onPlayListenerList) {
                         if (onPlayListener != null) {
-                            onPlayListener.onPlay(posotion, fromUser);
+                            onPlayListener.onPlay(position, song_duration, fromUser);
                         }
                     }
                 }
@@ -105,6 +100,20 @@ public class PlayerService extends Service {
                     for (OnPlayModeChangeListener onPlayModeChangeListener : onPlayModeChangeListenerList) {
                         if (onPlayModeChangeListener != null) {
                             onPlayModeChangeListener.onChange(playMode);
+                        }
+                    }
+                }
+            }
+        });
+
+        musicPlayer.setOnPlayPositionChangeListener(new MusicPlayer.OnPlayPositionChangeListener() {
+            @Override
+            public void onChange(int position) {
+                if (onPlayPositionChangeListenerList != null) {
+                    String str_position = TimeUtil.timeParse(position);
+                    for (OnPlayPositionChangeListener onPlayPostionChangeListener : onPlayPositionChangeListenerList) {
+                        if (onPlayPostionChangeListener != null) {
+                            onPlayPostionChangeListener.onChange(position, str_position);
                         }
                     }
                 }
@@ -200,7 +209,7 @@ public class PlayerService extends Service {
      *
      */
     public interface OnPlayListener {
-        void onPlay(int posotion, boolean fromUser);
+        void onPlay(int position, int song_duration, boolean fromUser);
     }
 
 
@@ -242,4 +251,21 @@ public class PlayerService extends Service {
         void onError();
     }
 
+
+    /**
+     * @param onPlayPositionChangeListener
+     */
+    public void addOnPlayPositionChangeListener(OnPlayPositionChangeListener onPlayPositionChangeListener) {
+        if (onPlayPositionChangeListener == null) {
+            return;
+        }
+        if (onPlayPositionChangeListenerList == null) {
+            onPlayPositionChangeListenerList = new ArrayList<>();
+        }
+        this.onPlayPositionChangeListenerList.add(onPlayPositionChangeListener);
+    }
+
+    public interface OnPlayPositionChangeListener {
+        void onChange(int max, String str_position);
+    }
 }

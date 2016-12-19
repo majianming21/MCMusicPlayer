@@ -8,11 +8,13 @@ import android.util.Log;
 import com.mc.ink.mcmusicplayer.R;
 import com.mc.ink.mcmusicplayer.domain.Song;
 import com.mc.ink.mcmusicplayer.util.LogUtil;
+import com.mc.ink.mcmusicplayer.util.TimeUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 主音乐播放器
@@ -45,8 +47,10 @@ public class MusicPlayer {
     private OnPlayListener onPlayListener;
     private OnPlayModeChangeListener onPlayModeChangeListener;
     private OnErrorListener onErrorListener;
+    private OnPlayPositionChangeListener onPlayPositionChangeListener;
     private boolean playByUserChoice;
-
+    private Timer timer;
+    private TimerTask timerTask;
     private MusicPlayer(Context context) {
         mediaPlayer = new MediaPlayer();
         playMode = PLAY_WITH_SIGNAL;
@@ -83,7 +87,7 @@ public class MusicPlayer {
      * 列表播放 Constant.PLAY_WITH_SONG_LIST
      * 列表循环 Constant.PLAY_WITH_SONG_LIST_LOOPING
      *
-     * @param playMode
+     * @param playMode 播放模式
      */
     public void setPlayMode(int playMode) {
         LogUtil.i(TAG, "setPlayMode(int playMode) 设置播放模式为" + playMode);
@@ -133,6 +137,7 @@ public class MusicPlayer {
             position = playNext(true);
         } else if (playStatus == MusicPlayer.PAUSE) {
             mediaPlayer.start();
+            startTimer();
         }
         if (position == -1) {
             return false;
@@ -151,6 +156,7 @@ public class MusicPlayer {
             LogUtil.i(TAG, "pause() 用户点击暂停，播放器停止播放");
             mediaPlayer.pause();
             playStatus = PAUSE;
+            stopTimer();
         }
     }
 
@@ -242,7 +248,7 @@ public class MusicPlayer {
      * 获得即将播放的歌曲的下标
      * 提供给自动播放队列
      *
-     * @return
+     * @return 返回即将播放的歌曲的下标
      */
     private int getNextPosition(boolean fromUser) {
         int next_position = -1;//当没有下一首时下标为-1
@@ -317,6 +323,7 @@ public class MusicPlayer {
         mediaPlayer.setDataSource(path);
         mediaPlayer.prepare();
         mediaPlayer.start();
+        startTimer();
         onPlay(fromUser);
         playStatus = PLAYING;
     }
@@ -327,7 +334,7 @@ public class MusicPlayer {
      */
     private void onPlay(boolean fromUser) {
         if (this.onPlayListener != null) {
-                onPlayListener.onPlay(position, fromUser);
+            onPlayListener.onPlay(position, mediaPlayer.getDuration(), fromUser);
         }
     }
 
@@ -352,9 +359,8 @@ public class MusicPlayer {
 
     /**
      * 获取播放进度
-     * 获取播放进度
+     *
      */
-
     public int getCurrentPosition() {
         return mediaPlayer.getCurrentPosition();
     }
@@ -460,6 +466,7 @@ public class MusicPlayer {
     }
 
     /**
+     * 设置播放器暂停监听
      * @param onPauseListener 播放器暂停调用接口对象
      */
     public void setOnPauseListener(OnPauseListener onPauseListener) {
@@ -481,7 +488,7 @@ public class MusicPlayer {
      *
      */
     public interface OnPlayListener {
-        void onPlay(int posotion, boolean fromUser);
+        void onPlay(int position, int song_duration, boolean fromUser);
     }
 
 
@@ -509,6 +516,45 @@ public class MusicPlayer {
 
     public interface OnErrorListener {
         void onError();
+    }
+
+
+    public void setOnPlayPositionChangeListener(OnPlayPositionChangeListener onPlayPositionChangeListener) {
+        this.onPlayPositionChangeListener = onPlayPositionChangeListener;
+    }
+
+    public interface OnPlayPositionChangeListener {
+        void onChange(int position);
+    }
+
+    public void startTimer() {
+        LogUtil.d(TAG, "启动计时器");
+        if (timer == null) {
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (onPlayPositionChangeListener != null) {
+                                onPlayPositionChangeListener.onChange(mediaPlayer.getCurrentPosition());
+                            }
+                        }
+                    }).start();
+                }
+            };
+            timer.schedule(timerTask, 0, 300);
+        }
+    }
+
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+            timerTask.cancel();
+            timerTask = null;
+        }
     }
 
 }

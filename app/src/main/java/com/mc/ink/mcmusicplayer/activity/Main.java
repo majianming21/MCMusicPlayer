@@ -1,34 +1,24 @@
 package com.mc.ink.mcmusicplayer.activity;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mc.ink.mcmusicplayer.R;
 import com.mc.ink.mcmusicplayer.adpter.SongListAdpter;
 import com.mc.ink.mcmusicplayer.domain.Song;
 import com.mc.ink.mcmusicplayer.loader.SongLoader;
 import com.mc.ink.mcmusicplayer.service.MusicPlayer;
-import com.mc.ink.mcmusicplayer.util.LogUtil;
 
 import org.litepal.LitePal;
-import org.litepal.crud.DataSupport;
 
 import java.util.List;
 import java.util.Timer;
