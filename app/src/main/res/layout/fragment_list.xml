@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -63,4 +64,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/list_playbar" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/list_play_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/list_playbar"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="60dip"
+        android:layout_marginBottom="20dip"
+        app:fabSize="mini" />
 </RelativeLayout>

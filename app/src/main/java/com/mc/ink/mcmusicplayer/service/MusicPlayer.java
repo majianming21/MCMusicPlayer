@@ -94,7 +94,7 @@ public class MusicPlayer {
         LogUtil.i(TAG, "                          5.列表循环");
         this.playMode = playMode;
         if (this.onPlayModeChangeListener != null) {
-                onPlayModeChangeListener.onChange();
+            onPlayModeChangeListener.onChange(playMode);
         }
     }
 
@@ -496,7 +496,7 @@ public class MusicPlayer {
      *
      */
     public interface OnPlayModeChangeListener {
-        void onChange();
+        void onChange(int playMode);
     }
 
 

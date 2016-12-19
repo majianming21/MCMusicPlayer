@@ -98,6 +98,18 @@ public class PlayerService extends Service {
                 }
             }
         });
+        musicPlayer.setOnPlayModeChangeListener(new MusicPlayer.OnPlayModeChangeListener() {
+            @Override
+            public void onChange(int playMode) {
+                if (onPlayModeChangeListenerList != null) {
+                    for (OnPlayModeChangeListener onPlayModeChangeListener : onPlayModeChangeListenerList) {
+                        if (onPlayModeChangeListener != null) {
+                            onPlayModeChangeListener.onChange(playMode);
+                        }
+                    }
+                }
+            }
+        });
 
 
     }
@@ -209,7 +221,7 @@ public class PlayerService extends Service {
      *
      */
     public interface OnPlayModeChangeListener {
-        void onChange();
+        void onChange(int playMode);
     }
 
 
